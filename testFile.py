@@ -13,3 +13,36 @@ class TestFileName(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+name: Tests
+on: push
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip pytest
+          pip install coverage                          
+
+      - name: Test with unittest
+        run: python3 -m unittest test.py
+
+      - name: Check code coverage                       
+        run: |
+          python3 -m coverage run -m unittest test.py
+          python3 -m coverage report
+          python3 -m coverage html
+
+      - name: Archive code coverage HTML report
+        uses: actions/upload-artifact@v2
+        with:
+           name: code-coverage-report
+           path: htmlcov
